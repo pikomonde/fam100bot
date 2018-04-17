@@ -12,3 +12,10 @@
 
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
+
+# Fam100bot
+fam100bot
+!fam100bot/
+vendor/*
+!vendor/vendor.json
+ 
