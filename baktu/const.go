@@ -5,3 +5,8 @@ const (
 	cmdUserHit
 	cmdUserScore
 )
+
+const (
+	cmdGameDestroy = int8(iota)
+	cmdGamePrint
+)

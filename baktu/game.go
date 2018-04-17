@@ -1,7 +1,6 @@
 package baktu
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -13,15 +12,15 @@ import (
 // be called only from "in" channel. Please make sure to close (return)
 // this concurrency by using timeout. To destroy the entire game instance
 // (all these 3 parts + all game data), it can be done easily by using
-// destroy <- gameID
+// commanding destroy to "out" channel
 
 // game contains all variables a game needed. This game "object" only
 // created when a player joining a game. It will be destroyed whenever all
 // player out from the game or the game ends.
 type game struct {
 	gameID  string // The game ID
-	cmd     chan userInput
-	destroy chan string
+	in      chan userInput
+	out     chan gameOutput
 	players map[string]*player
 
 	wNotifyDur  time.Duration
@@ -38,8 +37,8 @@ type game struct {
 func (s *server) newGame(gameID string) *game {
 	return &game{
 		gameID:      gameID,
-		cmd:         make(chan userInput),
-		destroy:     s.destroyGame,
+		in:          make(chan userInput),
+		out:         s.out,
 		players:     make(map[string]*player),
 		wNotifyDur:  10 * time.Second,
 		wAreaDur:    30 * time.Second,
@@ -61,29 +60,32 @@ func (gm *game) areaWaiting() {
 	notify := time.Tick(gm.wNotifyDur)
 	for {
 		select {
-		case userIn := <-gm.cmd:
+		case userIn := <-gm.in:
 			if userIn.command == cmdUserJoin {
 				ok := gm.join(userIn.userID)
 				if int8(len(gm.players)) >= gm.wMinPlayer {
-					fmt.Printf("%s bergabung. Permainan dimulai..\n",
+					gm.printf("%s bergabung. Permainan dimulai..\n",
 						userIn.userID)
 					go gm.areaBreak()
 					return
 				}
 				if ok {
-					fmt.Printf("%s bergabung. Menunggu %d orang lagi\n",
+					gm.printf("%s bergabung. Menunggu %d orang lagi\n",
 						userIn.userID,
 						gm.wMinPlayer-int8(len(gm.players)))
 				}
 			}
 		case <-timeout:
-			fmt.Printf("Permainan dibatalkan, jumlah pemain kurang\n")
-			gm.destroy <- gm.gameID
+			gm.printf("Permainan dibatalkan, jumlah pemain kurang\n")
+			gm.out <- gameOutput{
+				command: cmdGameDestroy,
+				gameID:  gm.gameID,
+			}
 			return
 		case <-notify:
 			endSec := int(gm.wAreaDur / time.Second)
 			nowSec := int(time.Now().Sub(startTime) / time.Second)
-			fmt.Printf("%d detik lagi!\n", endSec-nowSec)
+			gm.printf("%d detik lagi!\n", endSec-nowSec)
 		}
 	}
 }
@@ -95,7 +97,7 @@ func (gm *game) areaMainGame() {
 	notify := time.Tick(1 * time.Second)
 	for {
 		select {
-		case userIn := <-gm.cmd:
+		case userIn := <-gm.in:
 			// player automatically join the game, whether they command
 			// "JOIN" or "HIT"
 			if gm.join(userIn.userID) {
@@ -109,21 +111,24 @@ func (gm *game) areaMainGame() {
 			gm.giveRoundPenalties()
 			gm.addToTotalScore()
 			gm.mgRoundLeft--
-			fmt.Printf("Ronde %d berakhir\n",
+			gm.printf("Ronde %d berakhir\n",
 				gm.mgNumRound-gm.mgRoundLeft)
 			gm.printScores()
 			gm.resetRoundScore()
 			if gm.mgRoundLeft > 0 {
 				go gm.areaBreak()
 			} else {
-				gm.destroy <- gm.gameID
+				gm.out <- gameOutput{
+					command: cmdGameDestroy,
+					gameID:  gm.gameID,
+				}
 			}
 			return
 		case <-notify:
 			// TODO: hide printing to create challenging game
 			endSec := int(gm.mgAreaDur / time.Second)
 			nowSec := int(time.Now().Sub(startTime) / time.Second)
-			fmt.Printf("%d.\n", endSec-nowSec)
+			gm.printf("%d.\n", endSec-nowSec)
 		}
 	}
 }
@@ -131,10 +136,10 @@ func (gm *game) areaMainGame() {
 // areaBreak is used to give a break to players from each round.
 func (gm *game) areaBreak() {
 	timeout := time.After(gm.bAreaDur)
-	fmt.Printf("Chat ketika angka menyentuh 0!\n")
+	gm.printf("Chat ketika angka menyentuh 0!\n")
 	for {
 		select {
-		case userIn := <-gm.cmd:
+		case userIn := <-gm.in:
 			// player automatically join the game, whether they command
 			// "JOIN" or "HIT"
 			gm.join(userIn.userID)

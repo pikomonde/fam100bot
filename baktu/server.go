@@ -1,22 +1,31 @@
 package baktu
 
+import (
+	"fmt"
+)
+
 // server contains info of all running games. This server only has 1
 // instance and initialized 1 time
 type server struct {
-	games       map[string]*game
-	destroyGame chan string
+	games map[string]*game
+	out   chan gameOutput
 }
 
 // newServer initialize server, this should be only called once
 func newServer() *server {
 	var s server
 	s.games = make(map[string]*game)
-	s.destroyGame = make(chan string)
+	s.out = make(chan gameOutput)
 	go func() {
 		for {
 			select {
-			case gameID := <-s.destroyGame:
-				delete(s.games, gameID)
+			case gameOut := <-s.out:
+				switch gameOut.command {
+				case cmdGameDestroy:
+					delete(s.games, gameOut.gameID)
+				case cmdGamePrint:
+					fmt.Printf("%s> %s", gameOut.gameID, gameOut.message)
+				}
 			}
 		}
 	}()
@@ -34,10 +43,10 @@ func (s *server) cmdHandler(userIn userInput) {
 			s.games[userIn.gameID] = gm
 			go gm.areaWaiting()
 		}
-		gm.cmd <- userIn
+		gm.in <- userIn
 	case cmdUserHit:
 		if ok {
-			gm.cmd <- userIn
+			gm.in <- userIn
 		}
 	case cmdUserScore:
 		gm.printScores()

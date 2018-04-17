@@ -38,3 +38,11 @@ type userInput struct {
 	userID  string
 	command int8
 }
+
+// gameOutput used by both server and game to easily pass game response
+// such as: gameID, message, and commands.
+type gameOutput struct {
+	gameID  string
+	message string
+	command int8
+}

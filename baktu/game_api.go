@@ -53,24 +53,38 @@ func (gm *game) giveRoundPenalties() {
 	}
 }
 
+// addToTotalScore simply add roundScore to gameScore
 func (gm *game) addToTotalScore() {
 	for key := range gm.players {
 		gm.players[key].gameScore += gm.players[key].roundScore
 	}
 }
 
+// resetRoundScore simply reset roundScore
 func (gm *game) resetRoundScore() {
 	for key := range gm.players {
 		gm.players[key].roundScore = 0
 	}
 }
 
+// printScores prints player's roundScore and gameScore in sorted order.
 func (gm *game) printScores() {
 	// TODO: sort it first
 	for _, v := range gm.players {
-		fmt.Printf("Player %s: %d (%d)\n",
+		gm.printf("Player %s: %d (%d)\n",
 			v.userID,
 			v.roundScore,
 			v.gameScore)
+	}
+}
+
+// printf prints text to client (can be terminal, line, telegram, slack)
+// by passing it to the "out" channel through gameOutput struct which
+// also contains gameID of the message
+func (gm *game) printf(format string, a ...interface{}) {
+	gm.out <- gameOutput{
+		command: cmdGamePrint,
+		gameID:  gm.gameID,
+		message: fmt.Sprintf(format, a...),
 	}
 }
