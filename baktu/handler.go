@@ -19,7 +19,7 @@ func (m *Module) direct(c *gin.Context) {
 	userID := c.DefaultQuery("user_id", "usr8851")
 	gameID := c.DefaultQuery("game_id", "gm7411")
 	command, _ := strconv.ParseInt(c.DefaultQuery("command", "0"), 10, 8)
-	m.server.cmdHandler(userInput{
+	m.server.inputHandler(userInput{
 		userID:  userID,
 		gameID:  gameID,
 		command: int8(command),

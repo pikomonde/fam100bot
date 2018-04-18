@@ -12,7 +12,7 @@ import (
 // be called only from "in" channel. Please make sure to close (return)
 // this concurrency by using timeout. To destroy the entire game instance
 // (all these 3 parts + all game data), it can be done easily by using
-// commanding destroy to "out" channel
+// commanding destroy to "out" channel.
 
 // game contains all variables a game needed. This game "object" only
 // created when a player joining a game. It will be destroyed whenever all
