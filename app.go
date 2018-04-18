@@ -21,7 +21,7 @@ func main() {
 	tictacModule := tictac.New(router, tictac.Option{})
 	tictacModule.Register()
 
-	baktuModule := baktu.New(router, baktu.Option{})
+	baktuModule := baktu.NewModule(router)
 	baktuModule.Register()
 
 	var port string

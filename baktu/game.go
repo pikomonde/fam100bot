@@ -90,7 +90,12 @@ func (gm *game) areaWaiting() {
 	}
 }
 
-// areaMainGame is an area where the main game is occured.
+// areaMainGame is an area where the main game is occured. It does
+// countdown from a certain time. It excpect a player to "HIT" just before
+// the countdown reach 0. The nearer the player "HIT" before it ends, the
+// lower the score will be. Player will get score penalty whenver they
+// "HIT" after the countdown finished. The lower the score, the better
+// the player.
 func (gm *game) areaMainGame() {
 	startTime := time.Now()
 	timeout := time.After(gm.mgAreaDur)
@@ -118,6 +123,7 @@ func (gm *game) areaMainGame() {
 			if gm.mgRoundLeft > 0 {
 				go gm.areaBreak()
 			} else {
+				gm.printf("Permainan berakhir...\n")
 				gm.out <- gameOutput{
 					command: cmdGameDestroy,
 					gameID:  gm.gameID,
@@ -133,7 +139,9 @@ func (gm *game) areaMainGame() {
 	}
 }
 
-// areaBreak is used to give a break to players from each round.
+// areaBreak is used to give a break to players from each round. It also
+// allows a new player to join the game, whenever a player command "JOIN"
+// or "HIT".
 func (gm *game) areaBreak() {
 	timeout := time.After(gm.bAreaDur)
 	gm.printf("Chat ketika angka menyentuh 0!\n")

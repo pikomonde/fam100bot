@@ -1,23 +1,22 @@
 package baktu
 
-import (
-	"fmt"
-)
-
 type handlerFunc func(*gameOutput)
 
 // server contains info of all running games. This server only has 1
 // instance and initialized 1 time.
 type server struct {
-	games map[string]*game
-	out   chan gameOutput
+	games     map[string]*game
+	out       chan gameOutput
+	responder *responder
 }
 
 // newServer initialize server, this should be only called once.
 func newServer() *server {
-	var s server
-	s.games = make(map[string]*game)
-	s.out = make(chan gameOutput)
+	s := server{
+		games:     make(map[string]*game),
+		out:       make(chan gameOutput),
+		responder: newResponder(),
+	}
 	go s.outputHandler()
 	return &s
 }
@@ -56,18 +55,8 @@ func (s *server) outputHandler() {
 			case cmdGameDestroy:
 				delete(s.games, gameOut.gameID)
 			case cmdGamePrint:
-				s.getOutHandlerByGameID(gameOut.gameID)(&gameOut)
+				s.responder.print(gameOut.gameID)(&gameOut)
 			}
 		}
 	}
-}
-
-func (s *server) getOutHandlerByGameID(gameID string) handlerFunc {
-	// TODO: parse gameID's string to get outSourcce
-	//gm.gameID
-	return terminalPrinter
-}
-
-func terminalPrinter(gameOut *gameOutput) {
-	fmt.Printf("%s> %s", gameOut.gameID, gameOut.message)
 }

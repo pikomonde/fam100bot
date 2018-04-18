@@ -2,6 +2,7 @@ package baktu
 
 import (
 	"fmt"
+	"sort"
 	"time"
 )
 
@@ -69,8 +70,14 @@ func (gm *game) resetRoundScore() {
 
 // printScores prints player's roundScore and gameScore in sorted order.
 func (gm *game) printScores() {
-	// TODO: sort it first
-	for _, v := range gm.players {
+	// sorting players by gameRound
+	var ps players = make([]player, 0)
+	for _, p := range gm.players {
+		ps = append(ps, *p)
+	}
+	sort.Sort(ps)
+
+	for _, v := range ps {
 		gm.printf("Player %s: %d (%d)\n",
 			v.userID,
 			v.roundScore,
