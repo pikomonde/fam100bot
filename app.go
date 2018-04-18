@@ -24,7 +24,14 @@ func main() {
 	baktuModule := baktu.New(router, baktu.Option{})
 	baktuModule.Register()
 
-	go router.Run(":" + os.Getenv("PORT"))
+	var port string
+	switch os.Getenv("env") {
+	case "dev", "stag", "prod":
+		port = ":" + os.Getenv("PORT")
+	default:
+		port = ":7481"
+	}
+	go router.Run(port)
 
 	term := make(chan os.Signal)
 	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM)
