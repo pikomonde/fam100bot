@@ -71,7 +71,7 @@ func (gm *game) resetRoundScore() {
 }
 
 // printScores prints player's roundScore and gameScore in sorted order.
-func (gm *game) printScores() {
+func (gm *game) printScores(uIn ...userInput) {
 	// sorting players by gameRound
 	var ps players = make([]player, 0)
 	for _, p := range gm.players {
@@ -95,5 +95,16 @@ func (gm *game) printf(format string, a ...interface{}) {
 		command: cmdGamePrint,
 		gameID:  gm.gameID,
 		message: fmt.Sprintf(format, a...),
+	}
+}
+
+// rprintf behave same as printf, the only difference is, it also brings
+// the userInput with it.
+func (gm *game) rprintf(uIn userInput, format string, a ...interface{}) {
+	gm.out <- gameOutput{
+		command: cmdGamePrint,
+		gameID:  gm.gameID,
+		message: fmt.Sprintf(format, a...),
+		uIn:     uIn,
 	}
 }

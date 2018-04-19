@@ -62,18 +62,20 @@ func (gm *game) areaWaiting() {
 	notify := time.Tick(gm.wNotifyDur)
 	for {
 		select {
-		case userIn := <-gm.in:
-			if userIn.command == cmdUserJoin {
-				ok := gm.join(userIn.userID)
+		case uIn := <-gm.in:
+			if uIn.command == cmdUserJoin {
+				ok := gm.join(uIn.userID)
 				if int8(len(gm.players)) >= gm.wMinPlayer {
-					gm.printf("%s bergabung. Permainan dimulai..\n",
-						io.NewUserID(userIn.userID).ID)
+					gm.rprintf(uIn,
+						"%s bergabung. Permainan dimulai..\n",
+						io.NewUserID(uIn.userID).ID)
 					go gm.areaBreak()
 					return
 				}
 				if ok {
-					gm.printf("%s bergabung. Menunggu %d orang lagi\n",
-						io.NewUserID(userIn.userID).ID,
+					gm.rprintf(uIn,
+						"%s bergabung. Menunggu %d orang lagi\n",
+						io.NewUserID(uIn.userID).ID,
 						gm.wMinPlayer-int8(len(gm.players)))
 				}
 			}
@@ -104,15 +106,15 @@ func (gm *game) areaMainGame() {
 	notify := time.Tick(1 * time.Second)
 	for {
 		select {
-		case userIn := <-gm.in:
+		case uIn := <-gm.in:
 			// player automatically join the game, whether they command
 			// "JOIN" or "HIT"
-			if gm.join(userIn.userID) {
-				gm.giveGamePenalties(userIn.userID)
+			if gm.join(uIn.userID) {
+				gm.giveGamePenalties(uIn.userID)
 			}
-			if userIn.command == cmdUserHit &&
-				gm.isHitable(userIn.userID) {
-				gm.hit(userIn.userID, startTime)
+			if uIn.command == cmdUserHit &&
+				gm.isHitable(uIn.userID) {
+				gm.hit(uIn.userID, startTime)
 			}
 		case <-timeout:
 			gm.giveRoundPenalties()
@@ -149,10 +151,10 @@ func (gm *game) areaBreak() {
 	gm.printf("Chat ketika angka menyentuh 0!\n")
 	for {
 		select {
-		case userIn := <-gm.in:
+		case uIn := <-gm.in:
 			// player automatically join the game, whether they command
 			// "JOIN" or "HIT"
-			gm.join(userIn.userID)
+			gm.join(uIn.userID)
 		case <-timeout:
 			go gm.areaMainGame()
 			return

@@ -35,6 +35,7 @@ func (r *responder) terminal(gOut *gameOutput) {
 // gameOutput used by both server and game to easily pass game response
 // such as: gameID, message, and commands.
 type gameOutput struct {
+	uIn     userInput
 	gameID  string
 	message string
 	command int8

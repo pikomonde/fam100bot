@@ -24,20 +24,20 @@ func newServer() *server {
 // inputHandler handles request from inputListener (which is api and/or
 // webhook request). This instance universally interprets commands from
 // any trigger.
-func (s *server) inputHandler(userIn userInput) {
-	gm, ok := s.games[userIn.gameID]
-	switch userIn.command {
+func (s *server) inputHandler(uIn userInput) {
+	gm, ok := s.games[uIn.gameID]
+	switch uIn.command {
 	case cmdUserJoin:
 		// create new game if it doesn't exist
 		if !ok {
-			gm = s.newGame(userIn.gameID)
-			s.games[userIn.gameID] = gm
+			gm = s.newGame(uIn.gameID)
+			s.games[uIn.gameID] = gm
 			go gm.areaWaiting()
 		}
-		gm.in <- userIn
+		gm.in <- uIn
 	case cmdUserHit:
 		if ok {
-			gm.in <- userIn
+			gm.in <- uIn
 		}
 	case cmdUserScore:
 		gm.printScores()
@@ -50,12 +50,12 @@ func (s *server) inputHandler(userIn userInput) {
 func (s *server) outputHandler() {
 	for {
 		select {
-		case gameOut := <-s.out:
-			switch gameOut.command {
+		case gOut := <-s.out:
+			switch gOut.command {
 			case cmdGameDestroy:
-				delete(s.games, gameOut.gameID)
+				delete(s.games, gOut.gameID)
 			case cmdGamePrint:
-				s.responder.print(gameOut.gameID)(&gameOut)
+				s.responder.print(gOut.gameID)(&gOut)
 			}
 		}
 	}
