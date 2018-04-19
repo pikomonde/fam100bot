@@ -25,20 +25,22 @@ type UserID struct {
 // should be in "usr":[ID] format, where [ID] is string that contains
 // number 0-9. If it is not in the format, NewUserID will returns default
 // or unknown value.
-func NewUserID(str string) (uID *UserID) {
-	uID.Prefix = PreUnknown
-	uID.ID = DefGameID
-	if len(str) > 0 {
+func NewUserID(str string) *UserID {
+	uID := UserID{
+		Prefix: PreUnknown,
+		ID:     DefGameID,
+	}
+	if len(str) == 0 {
 		fmt.Printf("[NewUserID] Invalid input string. " +
 			"Input string shouldn't be empty.\n")
-		return uID
+		return &uID
 	}
 	parts := strings.Split(str, ":")
 	if len(parts) != 2 {
 		fmt.Printf("[NewUserID] Invalid input string. "+
 			"There should be exactly 2 parts seperated by ':'. "+
-			"Instead, found %d parts.\n", len(parts))
-		return uID
+			"Instead, found %d parts in %s\n", len(parts), str)
+		return &uID
 	}
 	if parts[0] != PreUser {
 		fmt.Printf("[NewUserID] Invalid prefix. "+
@@ -51,7 +53,7 @@ func NewUserID(str string) (uID *UserID) {
 	}
 	uID.ID = parts[1]
 
-	return uID
+	return &uID
 }
 
 func (uID UserID) String() string {

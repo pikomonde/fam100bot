@@ -26,28 +26,30 @@ type GameID struct {
 // should be in "gme":[SRC]:[ID] format, where [SRC] is a const of request
 // source and [ID] is string that contains number 0-9. If it is not in the
 // format, NewGameID will returns default or unknown value.
-func NewGameID(str string) (gID *GameID) {
-	gID.Prefix = PreUnknown
-	gID.Source = SrcUnknown
-	gID.ID = DefGameID
-	if len(str) > 0 {
+func NewGameID(str string) *GameID {
+	gID := GameID{
+		Prefix: PreUnknown,
+		Source: SrcUnknown,
+		ID:     DefGameID,
+	}
+	if len(str) == 0 {
 		fmt.Printf("[NewGameID] Invalid input string. " +
 			"Input string shouldn't be empty.\n")
-		return gID
+		return &gID
 	}
 	parts := strings.Split(str, ":")
 	if len(parts) != 3 {
 		fmt.Printf("[NewGameID] Invalid input string. "+
 			"There should be exactly 3 parts seperated by ':'. "+
-			"Instead, found %d parts.\n", len(parts))
-		return gID
+			"Instead, found %d parts in %s\n", len(parts), str)
+		return &gID
 	}
 	if parts[0] != PreGame {
 		fmt.Printf("[NewGameID] Invalid prefix. "+
 			"Found %s, expected %s\n", parts[0], PreGame)
 	}
 	gID.Prefix = parts[0]
-	if !regexp.MustCompile(`^[A-Z]{3}$`).MatchString(parts[1]) {
+	if !regexp.MustCompile(`^[a-z]{3}$`).MatchString(parts[1]) {
 		fmt.Printf("[NewGameID] Invalid source. "+
 			"Found %s, expected [ABC]\n", parts[1])
 	}
@@ -58,7 +60,7 @@ func NewGameID(str string) (gID *GameID) {
 	}
 	gID.ID = parts[2]
 
-	return gID
+	return &gID
 }
 
 func (gID *GameID) String() string {

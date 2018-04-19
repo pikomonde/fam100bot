@@ -2,6 +2,8 @@ package baktu
 
 import (
 	"time"
+
+	"github.com/pikomonde/fam100bot/io"
 )
 
 // This "baktu" game consists of 3 parts:
@@ -65,13 +67,13 @@ func (gm *game) areaWaiting() {
 				ok := gm.join(userIn.userID)
 				if int8(len(gm.players)) >= gm.wMinPlayer {
 					gm.printf("%s bergabung. Permainan dimulai..\n",
-						userIn.userID)
+						io.NewUserID(userIn.userID).ID)
 					go gm.areaBreak()
 					return
 				}
 				if ok {
 					gm.printf("%s bergabung. Menunggu %d orang lagi\n",
-						userIn.userID,
+						io.NewUserID(userIn.userID).ID,
 						gm.wMinPlayer-int8(len(gm.players)))
 				}
 			}

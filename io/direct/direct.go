@@ -23,7 +23,9 @@ func GetUserInput(c *gin.Context) (ui io.UserInput) {
 // newGameID gets a correct format of gameID. It should be in format of
 // "gme":[SRC]:[ID], where [SRC] is a const of request source and [ID] is
 // string that contains number 0-9. This function returns io.GameID.
-func newGameID(c *gin.Context) (gID *io.GameID) {
+func newGameID(c *gin.Context) *io.GameID {
+	gID := io.GameID{}
+
 	// part 1 should contains only the string "gme"
 	gID.Prefix = io.PreGame
 
@@ -36,13 +38,15 @@ func newGameID(c *gin.Context) (gID *io.GameID) {
 		gID.ID = io.DefGameID
 	}
 
-	return gID
+	return &gID
 }
 
 // newUserID gets a correct format of userID. It should be in "usr":[ID]
 // format, where [ID] is string that contains number 0-9. This function
 // returns io.UserID.
-func newUserID(c *gin.Context) (uID *io.UserID) {
+func newUserID(c *gin.Context) *io.UserID {
+	uID := io.UserID{}
+
 	// part 1 should contains only the string "usr"
 	uID.Prefix = io.PreUser
 
@@ -52,7 +56,7 @@ func newUserID(c *gin.Context) (uID *io.UserID) {
 		uID.ID = io.DefUserID
 	}
 
-	return uID
+	return &uID
 }
 
 // getCommand gets command code from context.

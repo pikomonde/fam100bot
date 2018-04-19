@@ -26,8 +26,10 @@ func (r *responder) print(gID string) handlerFunc {
 	return func(*gameOutput) {}
 }
 
-func (r *responder) terminal(gameOut *gameOutput) {
-	fmt.Printf("%s> %s", gameOut.gameID, gameOut.message)
+func (r *responder) terminal(gOut *gameOutput) {
+	fmt.Printf("Room %s> %s",
+		io.NewGameID(gOut.gameID).ID,
+		gOut.message)
 }
 
 // gameOutput used by both server and game to easily pass game response

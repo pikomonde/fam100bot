@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 	"time"
+
+	"github.com/pikomonde/fam100bot/io"
 )
 
 // join registers a player to a game, this function will return true if
@@ -79,7 +81,7 @@ func (gm *game) printScores() {
 
 	for _, v := range ps {
 		gm.printf("Player %s: %d (%d)\n",
-			v.userID,
+			io.NewUserID(v.userID).ID,
 			v.roundScore,
 			v.gameScore)
 	}
