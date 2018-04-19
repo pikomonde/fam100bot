@@ -15,8 +15,7 @@ type GameOutput struct {
 }
 
 // GameID consists of a prefix "gme", source which is a const of request
-// source and [ID] is string that contains number 0-9. This function
-// returns io.GameID.
+// source and [ID] is string that contains number 0-9.
 type GameID struct {
 	Prefix string
 	Source string

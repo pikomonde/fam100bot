@@ -14,14 +14,15 @@ type UserInput struct {
 	Command int8
 }
 
-// UserID consists of
+// UserID consists of a prefix "usr" and [ID] is string that contains
+// number 0-9.
 type UserID struct {
 	Prefix string
 	ID     string
 }
 
 // NewUserID translates user string into UserID struct. String input
-// should be in "gme":[ID] format, where [ID] is string that contains
+// should be in "usr":[ID] format, where [ID] is string that contains
 // number 0-9. If it is not in the format, NewUserID will returns default
 // or unknown value.
 func NewUserID(str string) (uID *UserID) {
