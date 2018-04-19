@@ -66,7 +66,7 @@ func (m *Module) lineWebhook(c *gin.Context) {
 	if err != nil {
 		// Do something when something bad happened.
 	}
-	var gameID string
+	var gameID string = "ABC123xyz"
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
 			switch event.Source.Type {
@@ -86,7 +86,7 @@ func (m *Module) lineWebhook(c *gin.Context) {
 	ui := io_dir.GetUserInput(c)
 	m.server.inputHandler(userInput{
 		userID:  ui.UserID,
-		gameID:  gameID,
+		gameID:  "gme:lne:" + gameID,
 		command: ui.Command,
 	})
 
