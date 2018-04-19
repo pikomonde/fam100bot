@@ -3,21 +3,33 @@ package baktu
 import (
 	"fmt"
 
+	"github.com/line/line-bot-sdk-go/linebot"
+
 	"github.com/pikomonde/fam100bot/io"
+	io_lne "github.com/pikomonde/fam100bot/io/line"
 )
 
 // responder contains all config needed
-type responder struct{}
+type responder struct {
+	line *io_lne.Module
+}
 
-// newResponder creates new output handler responder.
-func newResponder() *responder {
-	return &responder{}
+type responderOpt struct {
+	line *io_lne.Module
+}
+
+// newResponder creates new output handler responder. This responder only
+// has 1 instance and initialized 1 time.
+func newResponder(opt responderOpt) *responder {
+	return &responder{
+		line: opt.line,
+	}
 }
 
 func (r *responder) print(gID string) handlerFunc {
 	switch io.NewGameID(gID).Source {
 	case io.SrcLine:
-		return func(*gameOutput) {}
+		return r.linebot
 	case io.SrcDir:
 		return r.terminal
 	case io.SrcUnknown:
@@ -30,6 +42,15 @@ func (r *responder) terminal(gOut *gameOutput) {
 	fmt.Printf("Room %s> %s",
 		io.NewGameID(gOut.gameID).ID,
 		gOut.message)
+}
+
+func (r *responder) linebot(gOut *gameOutput) {
+	msg := fmt.Sprintf("Room %s> %s",
+		io.NewGameID(gOut.gameID).ID,
+		gOut.message)
+
+	cli := r.line.Client
+	cli.PushMessage(gOut.gameID, linebot.NewTextMessage(msg))
 }
 
 // gameOutput used by both server and game to easily pass game response

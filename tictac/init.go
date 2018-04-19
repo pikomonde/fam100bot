@@ -22,7 +22,6 @@ type Option struct {
 func New(router *gin.Engine, opt Option) *Module {
 	return &Module{
 		Router: router,
-		//Prefix: opt.Prefix,
 	}
 }
 

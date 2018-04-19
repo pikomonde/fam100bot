@@ -1,5 +1,7 @@
 package baktu
 
+import io_lne "github.com/pikomonde/fam100bot/io/line"
+
 type handlerFunc func(*gameOutput)
 
 // server contains info of all running games. This server only has 1
@@ -10,12 +12,18 @@ type server struct {
 	responder *responder
 }
 
+type serverOpt struct {
+	line *io_lne.Module
+}
+
 // newServer initialize server, this should be only called once.
-func newServer() *server {
+func newServer(opt serverOpt) *server {
 	s := server{
-		games:     make(map[string]*game),
-		out:       make(chan gameOutput),
-		responder: newResponder(),
+		games: make(map[string]*game),
+		out:   make(chan gameOutput),
+		responder: newResponder(responderOpt{
+			line: opt.line,
+		}),
 	}
 	go s.outputHandler()
 	return &s

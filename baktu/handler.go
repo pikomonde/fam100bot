@@ -1,13 +1,19 @@
 package baktu
 
 import (
+	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/linebot"
 	io_dir "github.com/pikomonde/fam100bot/io/direct"
+	io_lne "github.com/pikomonde/fam100bot/io/line"
 )
+
+// Option contains all config needed
+type Option struct {
+	LineModule *io_lne.Module
+}
 
 // Module contains all config needed
 type Module struct {
@@ -16,11 +22,13 @@ type Module struct {
 	//DB *database.Store
 }
 
-// NewModule creates new input handler module.
-func NewModule(router *gin.Engine) *Module {
+// New creates new input handler module.
+func New(router *gin.Engine, opt Option) *Module {
 	return &Module{
 		router: router,
-		server: newServer(),
+		server: newServer(serverOpt{
+			line: opt.LineModule,
+		}),
 	}
 }
 
@@ -53,35 +61,39 @@ func (m *Module) direct(c *gin.Context) {
 }
 
 func (m *Module) lineWebhook(c *gin.Context) {
-	client := &http.Client{}
-	bot, err := linebot.New(os.Getenv("chan_secret"), os.Getenv("chan_token"), linebot.WithHTTPClient(client))
-
-	events, err := bot.ParseRequest(c.Request)
+	cli := m.server.responder.line.Client
+	events, err := cli.ParseRequest(c.Request)
 	if err != nil {
 		// Do something when something bad happened.
 	}
-
+	var gameID string
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
-			// Do Something...
-			_, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("Piko Monde")).Do()
-			if err != nil {
-				// Do something when some bad happened
+			switch event.Source.Type {
+			case "group":
+				gameID = event.Source.GroupID
+				fmt.Println(event.Source.Type, gameID)
+			case "room":
+				gameID = event.Source.RoomID
+				fmt.Println(event.Source.Type, gameID)
+			case "user":
+				gameID = event.Source.UserID
+				fmt.Println(event.Source.Type, gameID)
 			}
 		}
 	}
 
-	// ui := io_lne.GetUserInput(c)
-	// m.server.inputHandler(userInput{
-	// 	userID:  ui.UserID,
-	// 	gameID:  ui.GameID,
-	// 	command: ui.Command,
-	// })
+	ui := io_dir.GetUserInput(c)
+	m.server.inputHandler(userInput{
+		userID:  ui.UserID,
+		gameID:  gameID,
+		command: ui.Command,
+	})
 
-	// c.JSON(http.StatusOK, gin.H{
-	// 	"status":  http.StatusOK,
-	// 	"message": "direct",
-	// })
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "direct",
+	})
 }
 
 // userInput used by both cmdHandler and game to easily pass user input
