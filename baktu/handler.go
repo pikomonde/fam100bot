@@ -3,6 +3,7 @@ package baktu
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -68,6 +69,7 @@ func (m *Module) lineWebhook(c *gin.Context) {
 	}
 	fmt.Println("==== TEST 1")
 	var gameID = "ABC123xyz"
+	var cmd int64 = 4
 	for _, event := range events {
 		fmt.Println("==== TEST 2")
 		if event.Type == linebot.EventTypeMessage {
@@ -83,6 +85,10 @@ func (m *Module) lineWebhook(c *gin.Context) {
 				gameID = event.Source.UserID
 				fmt.Println(event.Source.Type, gameID)
 			}
+			switch msg := event.Message.(type) {
+			case *linebot.TextMessage:
+				cmd, _ = strconv.ParseInt(msg.Text, 10, 64)
+			}
 		}
 	}
 
@@ -90,7 +96,7 @@ func (m *Module) lineWebhook(c *gin.Context) {
 	m.server.inputHandler(userInput{
 		userID:  ui.UserID,
 		gameID:  "gme:lne:" + gameID,
-		command: ui.Command,
+		command: int8(cmd),
 	})
 
 	c.JSON(http.StatusOK, gin.H{

@@ -50,7 +50,7 @@ func (r *responder) linebot(gOut *gameOutput) {
 		gOut.message)
 
 	cli := r.line.Client
-	cli.PushMessage(gOut.gameID, linebot.NewTextMessage(msg))
+	cli.PushMessage(io.NewGameID(gOut.gameID).ID, linebot.NewTextMessage(msg))
 }
 
 // gameOutput used by both server and game to easily pass game response
