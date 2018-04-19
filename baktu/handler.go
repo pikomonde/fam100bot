@@ -66,9 +66,12 @@ func (m *Module) lineWebhook(c *gin.Context) {
 	if err != nil {
 		// Do something when something bad happened.
 	}
-	var gameID string = "ABC123xyz"
+	fmt.Println("==== TEST 1")
+	var gameID = "ABC123xyz"
 	for _, event := range events {
+		fmt.Println("==== TEST 2")
 		if event.Type == linebot.EventTypeMessage {
+			fmt.Println("==== TEST 3", event.Source.Type)
 			switch event.Source.Type {
 			case "group":
 				gameID = event.Source.GroupID
