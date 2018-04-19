@@ -45,13 +45,11 @@ func (r *responder) terminal(gOut *gameOutput) {
 }
 
 func (r *responder) linebot(gOut *gameOutput) {
-	msg := fmt.Sprintf("Room %s> %s",
-		io.NewGameID(gOut.gameID).ID,
-		gOut.message)
-
 	cli := r.line.Client
-	cli.PushMessage(io.NewGameID(gOut.gameID).ID, linebot.NewTextMessage(msg)).Do()
-	fmt.Println(msg)
+	cli.PushMessage(
+		io.NewGameID(gOut.gameID).ID,
+		linebot.NewTextMessage(gOut.message),
+	).Do()
 }
 
 // gameOutput used by both server and game to easily pass game response

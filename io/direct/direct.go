@@ -30,11 +30,14 @@ func newGameID(c *gin.Context) *io.GameID {
 	gID.Prefix = io.PreGame
 
 	// part 2 should contains source of the input
-	gID.Source = io.SrcDir
+	gID.Source = c.DefaultQuery("source", io.SrcDir)
+	if !regexp.MustCompile(`^[a-z]{3}$`).MatchString(gID.ID) {
+		gID.ID = io.SrcUnknown
+	}
 
 	// part 3 should contains only string of number 0-9
 	gID.ID = c.DefaultQuery("game_id", io.DefGameID)
-	if !regexp.MustCompile(`^[0-9]+$`).MatchString(gID.ID) {
+	if !regexp.MustCompile(`^[a-zA-Z0-9]+$`).MatchString(gID.ID) {
 		gID.ID = io.DefGameID
 	}
 

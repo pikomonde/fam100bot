@@ -3,10 +3,9 @@ package baktu
 import (
 	"fmt"
 	"net/http"
-	"strconv"
+	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/line/line-bot-sdk-go/linebot"
 	io_dir "github.com/pikomonde/fam100bot/io/direct"
 	io_lne "github.com/pikomonde/fam100bot/io/line"
 )
@@ -48,12 +47,21 @@ func (m *Module) ping(c *gin.Context) {
 }
 
 func (m *Module) direct(c *gin.Context) {
+	if os.Getenv("env") == "prod" {
+		c.JSON(http.StatusForbidden, gin.H{
+			"status":  http.StatusForbidden,
+			"message": "Forbidden",
+		})
+		return
+	}
+
 	ui := io_dir.GetUserInput(c)
 	m.server.inputHandler(userInput{
 		userID:  ui.UserID,
 		gameID:  ui.GameID,
 		command: ui.Command,
 	})
+	fmt.Println("[log][direct]", ui)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
@@ -63,45 +71,17 @@ func (m *Module) direct(c *gin.Context) {
 
 func (m *Module) lineWebhook(c *gin.Context) {
 	cli := m.server.responder.line.Client
-	events, err := cli.ParseRequest(c.Request)
-	if err != nil {
-		// Do something when something bad happened.
-	}
-	fmt.Println("==== TEST 1")
-	var gameID = "ABC123xyz"
-	var cmd int64 = 4
-	for _, event := range events {
-		fmt.Println("==== TEST 2")
-		if event.Type == linebot.EventTypeMessage {
-			fmt.Println("==== TEST 3", event.Source.Type)
-			switch event.Source.Type {
-			case "group":
-				gameID = event.Source.GroupID
-				fmt.Println(event.Source.Type, gameID)
-			case "room":
-				gameID = event.Source.RoomID
-				fmt.Println(event.Source.Type, gameID)
-			case "user":
-				gameID = event.Source.UserID
-				fmt.Println(event.Source.Type, gameID)
-			}
-			switch msg := event.Message.(type) {
-			case *linebot.TextMessage:
-				cmd, _ = strconv.ParseInt(msg.Text, 10, 64)
-			}
-		}
-	}
-
-	ui := io_dir.GetUserInput(c)
+	ui := io_lne.GetUserInput(c, cli)
 	m.server.inputHandler(userInput{
 		userID:  ui.UserID,
-		gameID:  "gme:lne:" + gameID,
-		command: int8(cmd),
+		gameID:  ui.GameID,
+		command: ui.Command,
 	})
+	fmt.Println("[log][line]", ui)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": "direct",
+		"message": "line",
 	})
 }
 
