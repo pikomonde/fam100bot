@@ -7,21 +7,15 @@ import (
 )
 
 // responder contains all config needed
-type responder struct {
-	// router *gin.Engine
-	// server *server
-}
+type responder struct{}
 
 // newResponder creates new output handler responder.
 func newResponder() *responder {
-	return &responder{
-	// router: router,
-	// server: newServer(),
-	}
+	return &responder{}
 }
 
-func (r *responder) print(gameID string) handlerFunc {
-	switch io.GetSourceByGameID(gameID) {
+func (r *responder) print(gID string) handlerFunc {
+	switch io.NewGameID(gID).Source {
 	case io.SrcLine:
 		return func(*gameOutput) {}
 	case io.SrcDir:

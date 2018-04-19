@@ -1,17 +1,25 @@
 package io
 
-// UserInput used by both cmdHandler and game to easily pass user input
-// such as: GameID, UserID, and Commands.
-type UserInput struct {
-	GameID  string
-	UserID  string
-	Command int8
-}
+// PreUnknown indicates prefix are unknown.
+const PreUnknown = "nil"
 
-// GameOutput used by both server and game to easily pass game response
-// such as: GameID, Message, and Commands.
-type GameOutput struct {
-	GameID  string
-	Message string
-	Command int8
-}
+// PreGame indicates prefix are for a game.
+const PreGame = "gme"
+
+// PreUser indicates prefix are for a user.
+const PreUser = "usr"
+
+// SrcUnknown indicates source are unknown.
+const SrcUnknown = "nil"
+
+// SrcDir indicates source are from direct api call.
+const SrcDir = "dir"
+
+// SrcLine indicates source are from line webhook.
+const SrcLine = "lne"
+
+// DefGameID is the default unique ID for game.
+const DefGameID = "7411"
+
+// DefUserID is the default unique ID for user.
+const DefUserID = "8851"
