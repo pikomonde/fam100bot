@@ -2,8 +2,10 @@ package baktu
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/line/line-bot-sdk-go/linebot"
 	io_dir "github.com/pikomonde/fam100bot/io/direct"
 )
 
@@ -51,6 +53,24 @@ func (m *Module) direct(c *gin.Context) {
 }
 
 func (m *Module) lineWebhook(c *gin.Context) {
+	client := &http.Client{}
+	bot, err := linebot.New(os.Getenv("chan_secret"), os.Getenv("chan_token"), linebot.WithHTTPClient(client))
+
+	events, err := bot.ParseRequest(c.Request)
+	if err != nil {
+		// Do something when something bad happened.
+	}
+
+	for _, event := range events {
+		if event.Type == linebot.EventTypeMessage {
+			// Do Something...
+			_, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("Piko Monde")).Do()
+			if err != nil {
+				// Do something when some bad happened
+			}
+		}
+	}
+
 	// ui := io_lne.GetUserInput(c)
 	// m.server.inputHandler(userInput{
 	// 	userID:  ui.UserID,
