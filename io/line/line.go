@@ -82,15 +82,18 @@ func newGameID(e *linebot.Event) *io.GameID {
 }
 
 // newUserID gets a correct format of userID. It should be in "usr":[ID]
-// format, where [ID] is string that contains number 0-9. This function
-// returns io.UserID.
+// format, where [ID] is string that contains only alphanumeric letter.
+// This function returns io.UserID.
 func newUserID(e *linebot.Event) *io.UserID {
 	uID := io.UserID{}
 
 	// part 1 should contains only the string "usr"
 	uID.Prefix = io.PreUser
 
-	// part 2 should contains only string of number 0-9
+	// part 2 should contains source of the input
+	uID.Source = io.SrcLine
+
+	// part 3 should contains only alphanumeric string
 	uID.ID = e.Source.UserID
 
 	return &uID

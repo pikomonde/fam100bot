@@ -41,7 +41,7 @@ func (cli *Client) GetFullName(userID string) (string, error) {
 	if uID.Prefix != io.PreUser {
 		errMsg := fmt.Sprintf("[GetFullName] "+
 			"userID with prefix \"usr\" needed, "+
-			"but ID with prefix \"%s\" found.", uID.Prefix)
+			"but ID with prefix \"%s\" found.\n", uID.Prefix)
 		fmt.Print(errMsg)
 		return "", errors.New(errMsg)
 	}
@@ -53,8 +53,8 @@ func (cli *Client) GetFullName(userID string) (string, error) {
 		profile, err := cli.Line.Bot.GetProfile(uID.ID).Do()
 		if err != nil {
 			errMsg := fmt.Sprintf("[GetFullName][Line] "+
-				"Error while getting profile from Line API."+
-				"Error: %s", err.Error())
+				"Error while getting profile from Line API. "+
+				"Error: %s\n", err.Error())
 			fmt.Print(errMsg)
 			return "", errors.New(errMsg)
 		}
@@ -62,7 +62,7 @@ func (cli *Client) GetFullName(userID string) (string, error) {
 	}
 
 	errMsg := fmt.Sprintf("[GetFullName] "+
-		"Source unexpected, found \"%s\" instead.", uID.Source)
+		"Source unexpected, found \"%s\" instead.\n", uID.Source)
 	fmt.Print(errMsg)
 	return "", errors.New(errMsg)
 }

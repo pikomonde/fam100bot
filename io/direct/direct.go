@@ -52,16 +52,22 @@ func newGameID(ctx *gin.Context) *io.GameID {
 	return &gID
 }
 
-// newUserID gets a correct format of userID. It should be in "usr":[ID]
-// format, where [ID] is string that contains number 0-9. This function
-// returns io.UserID.
+// newUserID gets a correct format of userID. It should be in format of
+// "usr":[SRC]:[ID], where [SRC] is a const of request source and [ID] is
+// string that contains number 0-9. This function returns io.UserID.
 func newUserID(ctx *gin.Context) *io.UserID {
 	uID := io.UserID{}
 
 	// part 1 should contains only the string "usr"
 	uID.Prefix = io.PreUser
 
-	// part 2 should contains only string of number 0-9
+	// part 2 should contains source of the input
+	uID.Source = ctx.DefaultQuery("source", io.SrcDir)
+	if !regexp.MustCompile(`^[a-z]{3}$`).MatchString(uID.ID) {
+		uID.ID = io.SrcUnknown
+	}
+
+	// part 3 should contains only string of number 0-9
 	uID.ID = ctx.DefaultQuery("user_id", io.DefUserID)
 	if !regexp.MustCompile(`^[0-9]+$`).MatchString(uID.ID) {
 		uID.ID = io.DefUserID

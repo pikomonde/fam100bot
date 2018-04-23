@@ -65,5 +65,5 @@ func NewUserID(str string) *UserID {
 
 // String stringify userID from object type into string.
 func (uID UserID) String() string {
-	return fmt.Sprintf("%s:%s", uID.Prefix, uID.ID)
+	return fmt.Sprintf("%s:%s:%s", uID.Prefix, uID.Source, uID.ID)
 }
