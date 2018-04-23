@@ -3,7 +3,7 @@ package baktu
 import (
 	"time"
 
-	"github.com/pikomonde/fam100bot/io"
+	io_cli "github.com/pikomonde/fam100bot/io/client"
 )
 
 // This "baktu" game consists of 3 parts:
@@ -24,6 +24,7 @@ type game struct {
 	in      chan userInput
 	out     chan gameOutput
 	players map[string]*player
+	cli     *io_cli.Client
 
 	wNotifyDur  time.Duration
 	wAreaDur    time.Duration
@@ -68,14 +69,14 @@ func (gm *game) areaWaiting() {
 				if int8(len(gm.players)) >= gm.wMinPlayer {
 					gm.rprintf(uIn,
 						"%s bergabung. Permainan dimulai..\n",
-						io.NewUserID(uIn.userID).ID)
+						gm.players[uIn.userID].fullname)
 					go gm.areaBreak()
 					return
 				}
 				if ok {
 					gm.rprintf(uIn,
 						"%s bergabung. Menunggu %d orang lagi\n",
-						io.NewUserID(uIn.userID).ID,
+						gm.players[uIn.userID].fullname,
 						gm.wMinPlayer-int8(len(gm.players)))
 				}
 			}

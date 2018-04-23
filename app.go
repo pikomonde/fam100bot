@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pikomonde/fam100bot/baktu"
-	io_lne "github.com/pikomonde/fam100bot/io/line"
+	cli "github.com/pikomonde/fam100bot/io/client"
 	"github.com/pikomonde/fam100bot/tictac"
 )
 
@@ -23,7 +23,7 @@ func main() {
 	tictacModule.Register()
 
 	baktuModule := baktu.New(r, baktu.Option{
-		LineModule: io_lne.New(),
+		Client: cli.New(),
 	})
 	baktuModule.Register()
 

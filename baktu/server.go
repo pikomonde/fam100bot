@@ -1,19 +1,20 @@
 package baktu
 
-import io_lne "github.com/pikomonde/fam100bot/io/line"
+import io_cli "github.com/pikomonde/fam100bot/io/client"
 
 type handlerFunc func(*gameOutput)
 
 // server contains info of all running games. This server only has 1
 // instance and initialized 1 time.
 type server struct {
-	games     map[string]*game
-	out       chan gameOutput
-	responder *responder
+	games map[string]*game
+	out   chan gameOutput
+	r     *responder
+	cli   *io_cli.Client
 }
 
 type serverOpt struct {
-	line *io_lne.Module
+	cli *io_cli.Client
 }
 
 // newServer initialize server, this should be only called once.
@@ -21,8 +22,9 @@ func newServer(opt serverOpt) *server {
 	s := server{
 		games: make(map[string]*game),
 		out:   make(chan gameOutput),
-		responder: newResponder(responderOpt{
-			line: opt.line,
+		cli:   opt.cli,
+		r: newResponder(responderOpt{
+			cli: opt.cli,
 		}),
 	}
 	go s.outputHandler()
@@ -39,6 +41,7 @@ func (s *server) inputHandler(uIn userInput) {
 		// create new game if it doesn't exist
 		if !ok {
 			gm = s.newGame(uIn.gameID)
+			gm.cli = s.cli
 			s.games[uIn.gameID] = gm
 			go gm.areaWaiting()
 		}
@@ -63,7 +66,7 @@ func (s *server) outputHandler() {
 			case cmdGameDestroy:
 				delete(s.games, gOut.gameID)
 			case cmdGamePrint:
-				s.responder.print(gOut.gameID)(&gOut)
+				s.r.print(gOut.gameID)(&gOut)
 			}
 		}
 	}

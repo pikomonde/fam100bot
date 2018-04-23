@@ -6,19 +6,20 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	io_dir "github.com/pikomonde/fam100bot/io/direct"
-	io_lne "github.com/pikomonde/fam100bot/io/line"
+	"github.com/pikomonde/fam100bot/io"
+	io_cli "github.com/pikomonde/fam100bot/io/client"
 )
 
 // Option contains all config needed
 type Option struct {
-	LineModule *io_lne.Module
+	Client *io_cli.Client
 }
 
 // Module contains all config needed
 type Module struct {
 	router *gin.Engine
-	server *server
+	s      *server
+	cli    *io_cli.Client
 	//DB *database.Store
 }
 
@@ -26,8 +27,9 @@ type Module struct {
 func New(router *gin.Engine, opt Option) *Module {
 	return &Module{
 		router: router,
-		server: newServer(serverOpt{
-			line: opt.LineModule,
+		cli:    opt.Client,
+		s: newServer(serverOpt{
+			cli: opt.Client,
 		}),
 	}
 }
@@ -55,8 +57,8 @@ func (m *Module) direct(c *gin.Context) {
 		return
 	}
 
-	ui := io_dir.GetUserInput(c)
-	m.server.inputHandler(userInput{
+	ui := m.cli.GetUserInput(c, io.SrcDir)
+	m.s.inputHandler(userInput{
 		userID:  ui.UserID,
 		gameID:  ui.GameID,
 		command: ui.Command,
@@ -70,9 +72,8 @@ func (m *Module) direct(c *gin.Context) {
 }
 
 func (m *Module) lineWebhook(c *gin.Context) {
-	cli := m.server.responder.line.Client
-	ui := io_lne.GetUserInput(c, cli)
-	m.server.inputHandler(userInput{
+	ui := m.cli.GetUserInput(c, io.SrcLine)
+	m.s.inputHandler(userInput{
 		userID:  ui.UserID,
 		gameID:  ui.GameID,
 		command: ui.Command,

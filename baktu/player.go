@@ -4,6 +4,9 @@ type player struct {
 	userID     string
 	gameScore  int64
 	roundScore int64
+	source     string
+
+	fullname string
 }
 
 type players []player

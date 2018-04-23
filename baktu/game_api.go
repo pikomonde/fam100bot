@@ -13,9 +13,14 @@ import (
 // already registered before.
 func (gm *game) join(userID string) bool {
 	if _, ok := gm.players[userID]; !ok {
+		fullname, err := gm.cli.GetFullName(userID)
+		if err != nil {
+			fullname = io.NewUserID(userID).ID
+		}
 		gm.players[userID] = &player{
 			userID:    userID,
 			gameScore: 0,
+			fullname:  fullname,
 		}
 		return true
 	}
@@ -80,8 +85,8 @@ func (gm *game) printScores(uIn ...userInput) {
 	sort.Sort(ps)
 
 	for _, v := range ps {
-		gm.printf("Player %s: %d (%d)\n",
-			io.NewUserID(v.userID).ID,
+		gm.printf("%s: %d (%d)\n",
+			gm.players[v.userID].fullname,
 			v.roundScore,
 			v.gameScore)
 	}

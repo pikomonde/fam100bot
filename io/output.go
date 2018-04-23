@@ -63,6 +63,7 @@ func NewGameID(str string) *GameID {
 	return &gID
 }
 
+// String stringify gameID from object type into string.
 func (gID *GameID) String() string {
 	return fmt.Sprintf("%s:%s:%s", gID.Prefix, gID.Source, gID.ID)
 }

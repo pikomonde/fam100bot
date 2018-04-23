@@ -1,7 +1,7 @@
 package io
 
 // PreUnknown indicates prefix are unknown.
-const PreUnknown = "nil"
+const PreUnknown = "unk"
 
 // PreGame indicates prefix are for a game.
 const PreGame = "gme"
@@ -10,7 +10,7 @@ const PreGame = "gme"
 const PreUser = "usr"
 
 // SrcUnknown indicates source are unknown.
-const SrcUnknown = "nil"
+const SrcUnknown = "unk"
 
 // SrcDir indicates source are from direct api call.
 const SrcDir = "dir"

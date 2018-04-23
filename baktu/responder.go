@@ -6,23 +6,23 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 
 	"github.com/pikomonde/fam100bot/io"
-	io_lne "github.com/pikomonde/fam100bot/io/line"
+	io_cli "github.com/pikomonde/fam100bot/io/client"
 )
 
 // responder contains all config needed
 type responder struct {
-	line *io_lne.Module
+	cli *io_cli.Client
 }
 
 type responderOpt struct {
-	line *io_lne.Module
+	cli *io_cli.Client
 }
 
 // newResponder creates new output handler responder. This responder only
 // has 1 instance and initialized 1 time.
 func newResponder(opt responderOpt) *responder {
 	return &responder{
-		line: opt.line,
+		cli: opt.cli,
 	}
 }
 
@@ -45,8 +45,7 @@ func (r *responder) terminal(gOut *gameOutput) {
 }
 
 func (r *responder) linebot(gOut *gameOutput) {
-	cli := r.line.Client
-	cli.PushMessage(
+	r.cli.Line.Bot.PushMessage(
 		io.NewGameID(gOut.gameID).ID,
 		linebot.NewTextMessage(gOut.message),
 	).Do()

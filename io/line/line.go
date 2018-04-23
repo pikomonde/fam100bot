@@ -11,23 +11,23 @@ import (
 	"github.com/pikomonde/fam100bot/io"
 )
 
-// Module contains linebot
-type Module struct {
-	Client *linebot.Client
+// Client contains linebot client
+type Client struct {
+	Bot *linebot.Client
 }
 
-// New creates new linebot module.
-func New() *Module {
+// New creates new linebot client.
+func New() *Client {
 	client := &http.Client{}
-	bot, err := linebot.New(os.Getenv("chan_secret"),
+	cli, err := linebot.New(os.Getenv("chan_secret"),
 		os.Getenv("chan_token"),
 		linebot.WithHTTPClient(client))
 	if err != nil {
 		fmt.Println("[New] Can't create linebot client. Error:", err)
 	}
 
-	return &Module{
-		Client: bot,
+	return &Client{
+		Bot: cli,
 	}
 }
 
@@ -36,8 +36,8 @@ func New() *Module {
 // UserID "8851". It also returns GameID, which will return default GameID
 // "7411" if it doesn't exist. Lastly, it returns the Command code which
 // will return 0 if whether the request not exist or in the wrong format.
-func GetUserInput(c *gin.Context, cli *linebot.Client) (ui io.UserInput) {
-	events, err := cli.ParseRequest(c.Request)
+func (c *Client) GetUserInput(ctx *gin.Context) (ui io.UserInput) {
+	events, err := c.Bot.ParseRequest(ctx.Request)
 	if err != nil {
 		fmt.Println("[GetUserInput][ParseRequest] Can't parse request. "+
 			"Err:", err)
