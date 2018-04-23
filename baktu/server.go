@@ -1,6 +1,8 @@
 package baktu
 
-import io_cli "github.com/pikomonde/fam100bot/io/client"
+import (
+	io_cli "github.com/pikomonde/fam100bot/io/client"
+)
 
 type handlerFunc func(*gameOutput)
 

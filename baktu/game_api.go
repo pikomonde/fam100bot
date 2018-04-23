@@ -84,12 +84,14 @@ func (gm *game) printScores(uIn ...userInput) {
 	}
 	sort.Sort(ps)
 
+	var msg string
 	for _, v := range ps {
-		gm.printf("%s: %d (%d)\n",
+		msg += fmt.Sprintf("%s: %d (%d)\n",
 			gm.players[v.userID].fullname,
 			v.roundScore,
 			v.gameScore)
 	}
+	gm.printf(msg)
 }
 
 // printf prints text to client (can be terminal, line, telegram, slack)
