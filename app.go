@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pikomonde/fam100bot/baktu"
+	"github.com/pikomonde/fam100bot/fambot"
 	cli "github.com/pikomonde/fam100bot/io/client"
 	"github.com/pikomonde/fam100bot/tictac"
 )
@@ -19,13 +20,20 @@ func main() {
 
 	r.GET("/ping", ping)
 
+	client := cli.New()
+
 	tictacModule := tictac.New(r, tictac.Option{})
 	tictacModule.Register()
 
 	baktuModule := baktu.New(r, baktu.Option{
-		Client: cli.New(),
+		Client: client,
 	})
 	baktuModule.Register()
+
+	fambotModule := fambot.New(r, fambot.Option{
+		Client: client,
+	})
+	fambotModule.Register()
 
 	var port string
 	if port = os.Getenv("PORT"); port == "" {
