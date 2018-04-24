@@ -2,7 +2,6 @@ package direct
 
 import (
 	"regexp"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pikomonde/fam100bot/io"
@@ -77,10 +76,11 @@ func newUserID(ctx *gin.Context) *io.UserID {
 }
 
 // getCommand gets command code from context.
-func getCommand(ctx *gin.Context) int8 {
-	cmd, err := strconv.ParseInt(ctx.DefaultQuery("command", "0"), 10, 8)
-	if err != nil {
-		return 0
-	}
-	return int8(cmd)
+func getCommand(ctx *gin.Context) string {
+	// cmd, err := strconv.ParseInt(ctx.DefaultQuery("command", "0"), 10, 8)
+	// if err != nil {
+	// 	return 0
+	// }
+	// return int8(cmd)
+	return ctx.DefaultQuery("command", "")
 }

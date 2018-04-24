@@ -11,7 +11,7 @@ import (
 type UserInput struct {
 	GameID  string
 	UserID  string
-	Command int8
+	Command string
 }
 
 // UserID consists of a prefix "usr" and [ID] is string that contains

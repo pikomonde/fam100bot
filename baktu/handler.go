@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pikomonde/fam100bot/io"
@@ -58,10 +59,20 @@ func (m *Module) direct(c *gin.Context) {
 	}
 
 	ui := m.cli.GetUserInput(c, io.SrcDir)
+
+	var cmd = cmdUserJoin
+	switch strings.ToLower(ui.Command) {
+	case "0":
+		cmd = cmdUserJoin
+	case "2":
+		cmd = cmdUserScore
+	default:
+		cmd = cmdUserHit
+	}
 	m.s.inputHandler(userInput{
 		userID:  ui.UserID,
 		gameID:  ui.GameID,
-		command: ui.Command,
+		command: cmd,
 	})
 	fmt.Println("[log][direct]", ui)
 
@@ -73,10 +84,20 @@ func (m *Module) direct(c *gin.Context) {
 
 func (m *Module) lineWebhook(c *gin.Context) {
 	ui := m.cli.GetUserInput(c, io.SrcLine)
+
+	var cmd = cmdUserJoin
+	switch strings.ToLower(ui.Command) {
+	case "join":
+		cmd = cmdUserJoin
+	case "score":
+		cmd = cmdUserScore
+	default:
+		cmd = cmdUserHit
+	}
 	m.s.inputHandler(userInput{
 		userID:  ui.UserID,
 		gameID:  ui.GameID,
-		command: ui.Command,
+		command: cmd,
 	})
 	fmt.Println("[log][line]", ui)
 

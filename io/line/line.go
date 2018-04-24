@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -100,14 +99,15 @@ func newUserID(e *linebot.Event) *io.UserID {
 }
 
 // getCommand gets command code from context.
-func getCommand(e *linebot.Event) int8 {
+func getCommand(e *linebot.Event) string {
 	switch msg := e.Message.(type) {
 	case *linebot.TextMessage:
-		cmd, err := strconv.ParseInt(msg.Text, 10, 64)
-		if err != nil {
-			return 0
-		}
-		return int8(cmd)
+		// cmd, err := strconv.ParseInt(msg.Text, 10, 64)
+		// if err != nil {
+		// 	return 0
+		// }
+		// return int8(cmd)
+		return msg.Text
 	}
-	return 0
+	return ""
 }
