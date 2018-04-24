@@ -47,13 +47,13 @@ func (s *server) newGame(gameID string) *game {
 		players:     make(map[string]*player),
 		questions:   s.newQuestions(),
 		wNotifyDur:  10 * time.Second,
-		wAreaDur:    10 * time.Second,
+		wAreaDur:    120 * time.Second,
 		wMinPlayer:  3,
 		bAreaDur:    5 * time.Second,
 		mgRoundLeft: 3,
 		mgNumRound:  3,
 		mgNotifyDur: 10 * time.Second,
-		mgAreaDur:   10 * time.Second,
+		mgAreaDur:   120 * time.Second,
 	}
 }
 
@@ -80,6 +80,7 @@ func (gm *game) areaWaiting() {
 				if ok {
 					endSec := int(gm.wAreaDur / time.Second)
 					nowSec := int(time.Now().Sub(startTime) / time.Second)
+					//TODO: create int to minunte:second format (2m3s)
 					gm.rprintf(uIn,
 						"%s bergabung. Menunggu %d orang lagi\n"+
 							"%d detik lagi!\n",
