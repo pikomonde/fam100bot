@@ -4,9 +4,10 @@ import (
 	"time"
 
 	io_cli "github.com/pikomonde/fam100bot/io/client"
+	"github.com/pikomonde/fam100bot/pfmt"
 )
 
-// This "baktu" game consists of 3 parts:
+// This "fambot" game consists of 3 parts:
 // 1. The waiting area
 // 2. The main game area
 // 3. The break area
@@ -53,7 +54,7 @@ func (s *server) newGame(gameID string) *game {
 		mgRoundLeft: 3,
 		mgNumRound:  3,
 		mgNotifyDur: 10 * time.Second,
-		mgAreaDur:   120 * time.Second,
+		mgAreaDur:   90 * time.Second,
 	}
 }
 
@@ -80,13 +81,12 @@ func (gm *game) areaWaiting() {
 				if ok {
 					endSec := int(gm.wAreaDur / time.Second)
 					nowSec := int(time.Now().Sub(startTime) / time.Second)
-					//TODO: create int to minunte:second format (2m3s)
 					gm.rprintf(uIn,
 						"%s bergabung. Menunggu %d orang lagi\n"+
-							"%d detik lagi!\n",
+							"%s detik lagi!\n",
 						gm.players[uIn.userID].fullname,
 						gm.wMinPlayer-int8(len(gm.players)),
-						endSec-nowSec)
+						pfmt.Time(endSec-nowSec))
 				}
 			}
 		case <-timeout:
@@ -108,11 +108,8 @@ func (gm *game) areaWaiting() {
 }
 
 // areaMainGame is an area where the main game is occured. It does
-// countdown from a certain time. It excpect a player to "HIT" just before
-// the countdown reach 0. The nearer the player "HIT" before it ends, the
-// lower the score will be. Player will get score penalty whenver they
-// "HIT" after the countdown finished. The lower the score, the better
-// the player.
+// countdown from a certain time. It excpect a player to "ANSWER" before
+// the countdown reach 0.
 func (gm *game) areaMainGame() {
 	startTime := time.Now()
 	timeout := time.After(gm.mgAreaDur)
@@ -125,40 +122,49 @@ func (gm *game) areaMainGame() {
 			gm.join(uIn.userID)
 			if uIn.command == cmdUserAnswer {
 				if gm.answer(uIn.userID, uIn.message) {
+					if gm.isAllAnswered() {
+						gm.mainGameEnds()
+						return
+					}
 					gm.printAnswers()
 				}
 			}
 		case <-timeout:
-			gm.addToTotalScore()
-			gm.printf("Ronde %d berakhir\n", gm.round()+1)
-			gm.printAllAnswers()
-			gm.printScores()
-			gm.resetRoundScore()
-			gm.mgRoundLeft--
-			if gm.mgRoundLeft > 0 {
-				go gm.areaBreak()
-			} else {
-				gm.printf("Permainan berakhir...\n")
-				gm.out <- gameOutput{
-					command: cmdGameDestroy,
-					gameID:  gm.gameID,
-				}
-			}
+			gm.mainGameEnds()
 			return
 		case <-notify:
 			endSec := int(gm.mgAreaDur / time.Second)
 			nowSec := int(time.Now().Sub(startTime) / time.Second)
 			switch endSec - nowSec {
-			case 30, 10:
+			case 60, 30, 10:
 				gm.printf("%d detik lagi!\n", endSec-nowSec)
 			}
 		}
 	}
 }
 
+// mainGameEnds parts of areaMainGame for the End Game case
+func (gm *game) mainGameEnds() {
+	gm.addToTotalScore()
+	gm.printf("Ronde %d berakhir\n", gm.round()+1)
+	gm.printAllAnswers()
+	gm.printScores()
+	gm.resetRoundScore()
+	gm.mgRoundLeft--
+	if gm.mgRoundLeft > 0 {
+		go gm.areaBreak()
+	} else {
+		gm.printf("Permainan berakhir...\n")
+		gm.out <- gameOutput{
+			command: cmdGameDestroy,
+			gameID:  gm.gameID,
+		}
+	}
+}
+
 // areaBreak is used to give a break to players from each round. It also
 // allows a new player to join the game, whenever a player command "JOIN"
-// or "HIT".
+// or "ANSWER".
 func (gm *game) areaBreak() {
 	timeout := time.After(gm.bAreaDur)
 	gm.printf("Game akan segea di mulai!\n" +

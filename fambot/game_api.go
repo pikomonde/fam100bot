@@ -145,3 +145,14 @@ func (gm *game) rprintf(uIn userInput, format string, a ...interface{}) {
 func (gm *game) round() int8 {
 	return gm.mgNumRound - gm.mgRoundLeft
 }
+
+// isAllAnswered checks whether all answer has been guessed or not.
+func (gm *game) isAllAnswered() bool {
+	var q = gm.questions[gm.round()]
+	for _, a := range q.Answers {
+		if a.UserID == "" {
+			return false
+		}
+	}
+	return true
+}

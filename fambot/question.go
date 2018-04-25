@@ -1,8 +1,8 @@
 package fambot
 
 import (
-	"encoding/json"
-	"fmt"
+	"math/rand"
+	"strings"
 )
 
 type question struct {
@@ -20,15 +20,51 @@ type answer struct {
 
 func (s *server) newQuestions() []*question {
 	//TODO: created newQuestions from database instead from text file.
-	//TODO: randomise question
-	var q struct{ Questions []*question }
-	err := json.Unmarshal([]byte(listofquestions), &q)
-	if err != nil {
-		fmt.Println("[newQuestions] Can't unmarshall listofquestions. "+
-			"Err:", err.Error())
+	//TODO: generate DB in init instead of parsing here everytime.
+
+	// var q struct{ Questions []*question }
+	// err := json.Unmarshal([]byte(listofquestions), &q)
+	// if err != nil {
+	// 	fmt.Println("[newQuestions] Can't unmarshall listofquestions. "+
+	// 		"Err:", err.Error())
+	// }
+
+	var qs = make([]*question, 0)
+	var qsStr = strings.Split(strings.TrimSpace(listofquestions), ";")
+	for i := 0; i < len(qsStr); i++ {
+		var q question
+		var asStr = strings.Split(strings.TrimSpace(qsStr[i]), "|")
+		if len(asStr) == 6 {
+			var as = make([]*answer, 0)
+			var scr int64 = 32
+			for j := 1; j <= 5; j++ {
+				var a answer
+				var ts = strings.Split(strings.ToLower(strings.TrimSpace(asStr[j])), "~")
+				if len(ts) > 0 {
+					a = answer{
+						Text:  ts[0],
+						Tag:   ts,
+						Score: scr,
+					}
+					as = append(as, &a)
+				}
+				scr -= 6
+			}
+			q = question{
+				QuestionID: int64(i),
+				Text:       asStr[0],
+				Answers:    as,
+			}
+			qs = append(qs, &q)
+		}
 	}
 
-	return q.Questions
+	for i := range qs {
+		j := rand.Intn(i + 1)
+		qs[i], qs[j] = qs[j], qs[i]
+	}
+
+	return qs
 }
 
 func (q *question) answer(userID, answer string) *answer {
@@ -48,30 +84,3 @@ func (q *question) answer(userID, answer string) *answer {
 	}
 	return nil
 }
-
-const listofquestions = `
-{
-	"questions": [
-		{"id": 0, "text": "Binatang yang bisa terbang selain burung?", "answers": [
-			{"text": "angsa", "score": 37},
-			{"text": "bebek", "score": 28},
-			{"text": "ayam", "score": 22},
-			{"text": "daun", "score": 17}
-		]},
-		{"id": 1, "text": "Hewan yang sering ditemui di jalan?", "answers": [
-			{"text": "kucing", "score": 30},
-			{"text": "tikus", "score": 21},
-			{"text": "kecoa", "score": 14},
-			{"text": "katak", "tag": ["kodok"], "score": 13},
-			{"text": "laba-laba", "score": 13}
-		]},
-		{"id": 2, "text": "Ikan yang sering di makan?", "answers": [
-			{"text": "bawal", "score": 30},
-			{"text": "gurame", "score": 21},
-			{"text": "lele", "score": 14},
-			{"text": "cupang", "score": 13},
-			{"text": "ayam-ayam", "tag": ["ayam"], "score": 13}
-		]}
-	]
-}
-`
