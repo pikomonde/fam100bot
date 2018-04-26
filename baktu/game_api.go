@@ -3,6 +3,7 @@ package baktu
 import (
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/pikomonde/fam100bot/io"
@@ -91,7 +92,7 @@ func (gm *game) printScores(uIn ...userInput) {
 			v.roundScore,
 			v.gameScore)
 	}
-	gm.printf(msg)
+	gm.printf(strings.TrimSpace(msg))
 }
 
 // printf prints text to client (can be terminal, line, telegram, slack)

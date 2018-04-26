@@ -3,6 +3,7 @@ package fambot
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/pikomonde/fam100bot/io"
 )
@@ -72,7 +73,7 @@ func (gm *game) printScores(uIn ...userInput) {
 			v.roundScore,
 			v.gameScore)
 	}
-	gm.printf(msg)
+	gm.printf(strings.TrimSpace(msg))
 }
 
 // printAllAnswers prints player's answer in a round with it's score.
@@ -86,7 +87,7 @@ func (gm *game) printAllAnswers(uIn ...userInput) {
 			msg += fmt.Sprintf("   %s\n", gm.players[a.UserID].fullname)
 		}
 	}
-	gm.printf(msg)
+	gm.printf(strings.TrimSpace(msg))
 }
 
 // printAnswers prints player's answer in a round with it's score.
@@ -102,7 +103,7 @@ func (gm *game) printAnswers(uIn ...userInput) {
 			msg += fmt.Sprintf("%d. ____________________\n", i+1)
 		}
 	}
-	gm.printf(msg)
+	gm.printf(strings.TrimSpace(msg))
 }
 
 // printQuestions prints game question in a round with player's score.
@@ -116,7 +117,7 @@ func (gm *game) printQuestions(uIn ...userInput) {
 	for i := 1; i <= len(q.Answers); i++ {
 		msg += fmt.Sprintf("%d. ____________________\n", i)
 	}
-	gm.printf(msg)
+	gm.printf(strings.TrimSpace(msg))
 }
 
 // printf prints text to client (can be terminal, line, telegram, slack)

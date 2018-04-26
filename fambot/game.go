@@ -1,6 +1,7 @@
 package fambot
 
 import (
+	"os"
 	"time"
 
 	io_cli "github.com/pikomonde/fam100bot/io/client"
@@ -41,6 +42,23 @@ type game struct {
 // newGame created a new game (in a game room). There can only be maximum
 // 1 game instance running in a room.
 func (s *server) newGame(gameID string) *game {
+	if os.Getenv("env") == "dev" {
+		return &game{
+			gameID:      gameID,
+			in:          make(chan userInput),
+			out:         s.out,
+			players:     make(map[string]*player),
+			questions:   s.newQuestions(),
+			wNotifyDur:  10 * time.Second,
+			wAreaDur:    120 * time.Second,
+			wMinPlayer:  2,
+			bAreaDur:    5 * time.Second,
+			mgRoundLeft: 3,
+			mgNumRound:  3,
+			mgNotifyDur: 10 * time.Second,
+			mgAreaDur:   90 * time.Second,
+		}
+	}
 	return &game{
 		gameID:      gameID,
 		in:          make(chan userInput),
@@ -73,7 +91,7 @@ func (gm *game) areaWaiting() {
 				ok := gm.join(uIn.userID)
 				if int8(len(gm.players)) >= gm.wMinPlayer {
 					gm.rprintf(uIn,
-						"%s bergabung. Permainan dimulai..\n",
+						"%s bergabung. Permainan dimulai..",
 						gm.players[uIn.userID].fullname)
 					go gm.areaBreak()
 					return
@@ -82,15 +100,15 @@ func (gm *game) areaWaiting() {
 					endSec := int(gm.wAreaDur / time.Second)
 					nowSec := int(time.Now().Sub(startTime) / time.Second)
 					gm.rprintf(uIn,
-						"%s bergabung. Menunggu %d orang lagi\n"+
-							"%s detik lagi!\n",
+						"%s bergabung. Menunggu %d orang lagi. "+
+							"Menunggu %s detik sebelum berakhir!",
 						gm.players[uIn.userID].fullname,
 						gm.wMinPlayer-int8(len(gm.players)),
 						pfmt.Time(endSec-nowSec))
 				}
 			}
 		case <-timeout:
-			gm.printf("Permainan dibatalkan, jumlah pemain kurang\n")
+			gm.printf("Permainan dibatalkan, jumlah pemain kurang.")
 			gm.out <- gameOutput{
 				command: cmdGameDestroy,
 				gameID:  gm.gameID,
@@ -101,7 +119,7 @@ func (gm *game) areaWaiting() {
 			nowSec := int(time.Now().Sub(startTime) / time.Second)
 			switch endSec - nowSec {
 			case 10, 30, 60, 90:
-				gm.printf("%d detik lagi!\n", endSec-nowSec)
+				gm.printf("%d detik lagi!", endSec-nowSec)
 			}
 		}
 	}
@@ -137,7 +155,7 @@ func (gm *game) areaMainGame() {
 			nowSec := int(time.Now().Sub(startTime) / time.Second)
 			switch endSec - nowSec {
 			case 60, 30, 10:
-				gm.printf("%d detik lagi!\n", endSec-nowSec)
+				gm.printf("%d detik lagi!", endSec-nowSec)
 			}
 		}
 	}
@@ -146,7 +164,7 @@ func (gm *game) areaMainGame() {
 // mainGameEnds parts of areaMainGame for the End Game case
 func (gm *game) mainGameEnds() {
 	gm.addToTotalScore()
-	gm.printf("Ronde %d berakhir\n", gm.round()+1)
+	gm.printf("Ronde %d berakhir", gm.round()+1)
 	gm.printAllAnswers()
 	gm.printScores()
 	gm.resetRoundScore()
@@ -154,7 +172,7 @@ func (gm *game) mainGameEnds() {
 	if gm.mgRoundLeft > 0 {
 		go gm.areaBreak()
 	} else {
-		gm.printf("Permainan berakhir...\n")
+		gm.printf("Permainan berakhir...")
 		gm.out <- gameOutput{
 			command: cmdGameDestroy,
 			gameID:  gm.gameID,
@@ -168,7 +186,7 @@ func (gm *game) mainGameEnds() {
 func (gm *game) areaBreak() {
 	timeout := time.After(gm.bAreaDur)
 	gm.printf("Game akan segea di mulai!\n" +
-		"Semua member chat boleh langsung menjawab tanpa \"join\".\n")
+		"Semua member chat boleh langsung menjawab tanpa \"join\".")
 	for {
 		select {
 		case uIn := <-gm.in:

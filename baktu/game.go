@@ -68,20 +68,20 @@ func (gm *game) areaWaiting() {
 				ok := gm.join(uIn.userID)
 				if int8(len(gm.players)) >= gm.wMinPlayer {
 					gm.rprintf(uIn,
-						"%s bergabung. Permainan dimulai..\n",
+						"%s bergabung. Permainan dimulai..",
 						gm.players[uIn.userID].fullname)
 					go gm.areaBreak()
 					return
 				}
 				if ok {
 					gm.rprintf(uIn,
-						"%s bergabung. Menunggu %d orang lagi\n",
+						"%s bergabung. Menunggu %d orang lagi",
 						gm.players[uIn.userID].fullname,
 						gm.wMinPlayer-int8(len(gm.players)))
 				}
 			}
 		case <-timeout:
-			gm.printf("Permainan dibatalkan, jumlah pemain kurang\n")
+			gm.printf("Permainan dibatalkan, jumlah pemain kurang.")
 			gm.out <- gameOutput{
 				command: cmdGameDestroy,
 				gameID:  gm.gameID,
@@ -90,7 +90,7 @@ func (gm *game) areaWaiting() {
 		case <-notify:
 			endSec := int(gm.wAreaDur / time.Second)
 			nowSec := int(time.Now().Sub(startTime) / time.Second)
-			gm.printf("%d detik lagi!\n", endSec-nowSec)
+			gm.printf("%d detik lagi!", endSec-nowSec)
 		}
 	}
 }
@@ -121,14 +121,14 @@ func (gm *game) areaMainGame() {
 			gm.giveRoundPenalties()
 			gm.addToTotalScore()
 			gm.mgRoundLeft--
-			gm.printf("Ronde %d berakhir\n",
+			gm.printf("Ronde %d berakhir.",
 				gm.mgNumRound-gm.mgRoundLeft)
 			gm.printScores()
 			gm.resetRoundScore()
 			if gm.mgRoundLeft > 0 {
 				go gm.areaBreak()
 			} else {
-				gm.printf("Permainan berakhir...\n")
+				gm.printf("Permainan berakhir...")
 				gm.out <- gameOutput{
 					command: cmdGameDestroy,
 					gameID:  gm.gameID,
@@ -139,7 +139,7 @@ func (gm *game) areaMainGame() {
 			// TODO: hide printing to create challenging game
 			endSec := int(gm.mgAreaDur / time.Second)
 			nowSec := int(time.Now().Sub(startTime) / time.Second)
-			gm.printf("%d.\n", endSec-nowSec)
+			gm.printf("%d.", endSec-nowSec)
 		}
 	}
 }
@@ -149,7 +149,7 @@ func (gm *game) areaMainGame() {
 // or "HIT".
 func (gm *game) areaBreak() {
 	timeout := time.After(gm.bAreaDur)
-	gm.printf("Chat ketika angka menyentuh 0!\n")
+	gm.printf("Chat ketika angka menyentuh 0!")
 	for {
 		select {
 		case uIn := <-gm.in:

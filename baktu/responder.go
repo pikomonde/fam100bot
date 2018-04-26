@@ -39,7 +39,7 @@ func (r *responder) print(gID string) handlerFunc {
 }
 
 func (r *responder) terminal(gOut *gameOutput) {
-	fmt.Printf("Room %s> %s",
+	fmt.Printf("Room %s> %s\n",
 		io.NewGameID(gOut.gameID).ID,
 		gOut.message)
 }
