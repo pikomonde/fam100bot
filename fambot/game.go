@@ -53,8 +53,8 @@ func (s *server) newGame(gameID string) *game {
 			wAreaDur:    120 * time.Second,
 			wMinPlayer:  2,
 			bAreaDur:    5 * time.Second,
-			mgRoundLeft: 3,
-			mgNumRound:  3,
+			mgRoundLeft: 5,
+			mgNumRound:  5,
 			mgNotifyDur: 10 * time.Second,
 			mgAreaDur:   90 * time.Second,
 		}
@@ -69,8 +69,8 @@ func (s *server) newGame(gameID string) *game {
 		wAreaDur:    120 * time.Second,
 		wMinPlayer:  3,
 		bAreaDur:    5 * time.Second,
-		mgRoundLeft: 3,
-		mgNumRound:  3,
+		mgRoundLeft: 5,
+		mgNumRound:  5,
 		mgNotifyDur: 10 * time.Second,
 		mgAreaDur:   90 * time.Second,
 	}

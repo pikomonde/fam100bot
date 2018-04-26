@@ -3,6 +3,7 @@ package fambot
 import (
 	"math/rand"
 	"strings"
+	"time"
 )
 
 type question struct {
@@ -59,8 +60,9 @@ func (s *server) newQuestions() []*question {
 		}
 	}
 
+	rnd := rand.New(rand.NewSource(time.Now().Unix()))
 	for i := range qs {
-		j := rand.Intn(i + 1)
+		j := rnd.Intn(i + 1)
 		qs[i], qs[j] = qs[j], qs[i]
 	}
 
