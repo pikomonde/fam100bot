@@ -17,6 +17,9 @@ func (gm *game) join(userID string) bool {
 		if err != nil {
 			fullname = io.NewUserID(userID).ID
 		}
+		if len(fullname) > 15 {
+			fullname = fullname[:15]
+		}
 		gm.players[userID] = &player{
 			userID:    userID,
 			gameScore: 0,
