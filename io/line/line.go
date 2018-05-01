@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	spew "github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/pikomonde/fam100bot/io"
@@ -42,7 +43,7 @@ func (c *Client) GetUserInput(ctx *gin.Context) (ui io.UserInput) {
 			"Err:", err)
 	}
 
-	fmt.Println("[log][line][events]", events)
+	spew.Dump("[log][line][events]", events)
 	var e *linebot.Event
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
