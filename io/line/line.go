@@ -43,11 +43,17 @@ func (c *Client) GetUserInput(ctx *gin.Context) (ui io.UserInput) {
 			"Err:", err)
 	}
 
-	spew.Dump("[log][line][events]", events)
 	var e *linebot.Event
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
 			e = event
+		} else {
+			// TODO: change dump to better location, such like, slack,
+			// telegram, or even line.. It's better to use slack/telegram,
+			// because line have api usage limitation 10k/month, meanwhile
+			// telegram have 30 request/second limit, but slack (free
+			// edition) have 10k message history.
+			spew.Dump("[log][line][event]", event)
 		}
 	}
 
