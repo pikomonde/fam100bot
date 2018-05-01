@@ -42,6 +42,7 @@ func (c *Client) GetUserInput(ctx *gin.Context) (ui io.UserInput) {
 			"Err:", err)
 	}
 
+	fmt.Println("[log][line][events]", events)
 	var e *linebot.Event
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
@@ -49,9 +50,11 @@ func (c *Client) GetUserInput(ctx *gin.Context) (ui io.UserInput) {
 		}
 	}
 
-	ui.UserID = newUserID(e).String()
-	ui.GameID = newGameID(e).String()
-	ui.Command = getCommand(e)
+	if e != nil {
+		ui.UserID = newUserID(e).String()
+		ui.GameID = newGameID(e).String()
+		ui.Command = getCommand(e)
+	}
 	return ui
 }
 
