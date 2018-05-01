@@ -43,6 +43,10 @@ func (c *Client) GetUserInput(ctx *gin.Context) (ui io.UserInput) {
 			"Err:", err)
 	}
 
+	if os.Getenv("env") != "prod" {
+		spew.Dump("[log][line][events]", events)
+	}
+
 	var e *linebot.Event
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
