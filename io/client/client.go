@@ -58,6 +58,9 @@ func (cli *Client) GetFullName(userID string) (string, error) {
 			fmt.Print(errMsg)
 			return "", errors.New(errMsg)
 		}
+		if len(profile.DisplayName) > 15 {
+			profile.DisplayName = profile.DisplayName[:15]
+		}
 		return profile.DisplayName, nil
 	}
 
