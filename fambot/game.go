@@ -118,7 +118,7 @@ func (gm *game) areaWaiting() {
 			endSec := int(gm.wAreaDur / time.Second)
 			nowSec := int(time.Now().Sub(startTime) / time.Second)
 			switch endSec - nowSec {
-			case 10, 30, 60, 90:
+			case 60, 30:
 				gm.printf("%d detik lagi!", endSec-nowSec)
 			}
 		}
@@ -154,7 +154,7 @@ func (gm *game) areaMainGame() {
 			endSec := int(gm.mgAreaDur / time.Second)
 			nowSec := int(time.Now().Sub(startTime) / time.Second)
 			switch endSec - nowSec {
-			case 60, 30, 10:
+			case 60, 30:
 				gm.printf("%d detik lagi!", endSec-nowSec)
 			}
 		}
