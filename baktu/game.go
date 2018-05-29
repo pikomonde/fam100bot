@@ -3,7 +3,7 @@ package baktu
 import (
 	"time"
 
-	io_cli "github.com/pikomonde/fam100bot/io/client"
+  io_cli "github.com/pikomonde/fam100bot/io/client"
 )
 
 // This "baktu" game consists of 3 parts:
