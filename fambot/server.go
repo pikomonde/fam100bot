@@ -1,4 +1,4 @@
-package baktu
+package fambot
 
 import (
 	io_cli "github.com/pikomonde/fam100bot/io/client"
@@ -48,7 +48,7 @@ func (s *server) inputHandler(uIn userInput) {
 			go gm.areaWaiting()
 		}
 		gm.in <- uIn
-	case cmdUserHit:
+	case cmdUserAnswer:
 		if ok {
 			gm.in <- uIn
 		}

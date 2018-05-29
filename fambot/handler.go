@@ -1,4 +1,4 @@
-package baktu
+package fambot
 
 import (
 	"fmt"
@@ -37,15 +37,15 @@ func New(router *gin.Engine, opt Option) *Module {
 
 // Register the endpoints.
 func (m *Module) Register() {
-	m.router.GET("/baktu/ping", m.ping)
-	m.router.POST("/baktu/direct", m.direct)
-	m.router.POST("/baktu/line/webhook", m.lineWebhook)
+	m.router.GET("/fambot/ping", m.ping)
+	m.router.POST("/fambot/direct", m.direct)
+	m.router.POST("/fambot/line/webhook", m.lineWebhook)
 }
 
 func (m *Module) ping(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": "baktu pong",
+		"message": "fambot pong",
 	})
 }
 
@@ -61,18 +61,21 @@ func (m *Module) direct(c *gin.Context) {
 	ui := m.cli.GetUserInput(c, io.SrcDir)
 
 	var cmd = cmdUserJoin
+	var msg string
 	switch strings.ToLower(ui.Command) {
-	case "0":
+	case "0", "join":
 		cmd = cmdUserJoin
-	case "2":
+	case "2", "score":
 		cmd = cmdUserScore
 	default:
-		cmd = cmdUserHit
+		cmd = cmdUserAnswer
+		msg = strings.ToLower(ui.Command)
 	}
 	m.s.inputHandler(userInput{
 		userID:  ui.UserID,
 		gameID:  ui.GameID,
 		command: cmd,
+		message: msg,
 	})
 	fmt.Println("[log][direct]", ui)
 
@@ -86,18 +89,21 @@ func (m *Module) lineWebhook(c *gin.Context) {
 	ui := m.cli.GetUserInput(c, io.SrcLine)
 
 	var cmd = cmdUserJoin
+	var msg string
 	switch strings.ToLower(ui.Command) {
 	case "join":
 		cmd = cmdUserJoin
 	case "score":
 		cmd = cmdUserScore
 	default:
-		cmd = cmdUserHit
+		cmd = cmdUserAnswer
+		msg = strings.ToLower(ui.Command)
 	}
 	m.s.inputHandler(userInput{
 		userID:  ui.UserID,
 		gameID:  ui.GameID,
 		command: cmd,
+		message: msg,
 	})
 	fmt.Println("[log][line]", ui)
 
@@ -113,6 +119,7 @@ type userInput struct {
 	gameID  string
 	userID  string
 	command int8
+	message string
 }
 
 // consts of cmdUser is a command signal that used by userInput.
@@ -121,7 +128,7 @@ const (
 	cmdUserJoin = int8(iota)
 	// cmdUserHit used whenever a player want to guess the time in a
 	// gameplay.
-	cmdUserHit
+	cmdUserAnswer
 	// cmdUserScore used whenever a player want to check their overall
 	// total score.
 	cmdUserScore

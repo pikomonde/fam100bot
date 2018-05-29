@@ -9,22 +9,37 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pikomonde/fam100bot/baktu"
+	"github.com/pikomonde/fam100bot/fambot"
+	cli "github.com/pikomonde/fam100bot/io/client"
 	"github.com/pikomonde/fam100bot/tictac"
 )
 
 func main() {
-	router := gin.New()
-	router.Use(gin.Recovery())
+	r := gin.New()
+	r.Use(gin.Recovery())
 
-	router.GET("/ping", ping)
+	r.GET("/ping", ping)
 
-	tictacModule := tictac.New(router, tictac.Option{})
+	client := cli.New()
+
+	tictacModule := tictac.New(r, tictac.Option{})
 	tictacModule.Register()
 
-	baktuModule := baktu.New(router, baktu.Option{})
+	baktuModule := baktu.New(r, baktu.Option{
+		Client: client,
+	})
 	baktuModule.Register()
 
-	go router.Run(":3940")
+	fambotModule := fambot.New(r, fambot.Option{
+		Client: client,
+	})
+	fambotModule.Register()
+
+	var port string
+	if port = os.Getenv("PORT"); port == "" {
+		port = "7481"
+	}
+	go r.Run(":" + port)
 
 	term := make(chan os.Signal)
 	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM)
