@@ -1,4 +1,4 @@
-package baktu
+package fambot
 
 type player struct {
 	userID     string
